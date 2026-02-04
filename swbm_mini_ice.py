@@ -115,7 +115,7 @@ def predict_ts(data, config, n_days=None):
     # convert ET fraction to flux
     ets = ets * np.asarray(data['snr'])
 
-    return moists, runoffs, ets, runoffs_s, runoffs_h, runoffs_ice
+    return moists, runoffs, ets, runoffs_s, runoffs_h
 
 def model_correlation(data, model_outputs, start=None, end=None):
     """
