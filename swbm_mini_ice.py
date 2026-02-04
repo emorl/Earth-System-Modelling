@@ -68,6 +68,8 @@ def predict_ts(data, config, n_days=None):
     g = config['g']
     a = config['a']
     i_max = config['i_max']
+    t_ice = config['t_ice']
+
     
     def horton_runoff(precip, i_max):
         """ compute hortonian runoff"""
@@ -90,7 +92,7 @@ def predict_ts(data, config, n_days=None):
         if runoff_sh > data['tp'][i]:
             runoff_s = runoff_s - (runoff_sh - data['tp'][i])
             
-        if data['t2m'][i] < -400:
+        if data['t2m'][i] < t_ice:
             runoff_ice = data['tp'][i]
             runoff_s = 0
             runoff_h = 0
