@@ -86,12 +86,14 @@ def predict_ts(data, config, n_days=None):
         # Hortonian runoff
         runoff_h = horton_runoff(data['tp'][i], i_max)
     
-        # total runoff
+        # saturation and hortonian runoff
         runoff_sh = runoff_s + runoff_h
-        
+
+        # runoff_sh can't be more than precipitation
         if runoff_sh > data['tp'][i]:
             runoff_s = runoff_s - (runoff_sh - data['tp'][i])
-            
+
+        # freezing ground
         if data['t2m'][i] < t_ice:
             runoff_ice = data['tp'][i]
             runoff_s = 0
@@ -99,23 +101,29 @@ def predict_ts(data, config, n_days=None):
         else:
             runoff_ice = 0
             
-            
+        # total runoff 
         runoff_total = runoff_s + runoff_h + runoff_ice
         
         runoffs_ice[i] = runoff_ice
         runoffs_s[i] = runoff_s
         runoffs_h[i] = runoff_h
         runoffs[i] = runoff_total
-    
+
+        
+
+        
         # update soil moisture
         if i < n_days - 1:
-            moists[i + 1] = predict(
+            new_moist = predict(
                 moists[i],
                 ets[i],
                 data['tp'][i],
                 data['snr'][i],
                 runoff_total
             )
+
+            # Clamp soil moisture to [0, c_s]
+            moists[i + 1] = max(0, min(new_moist, c_s))
     
     # convert ET fraction to flux
     ets = ets * np.asarray(data['snr'])
